@@ -36,7 +36,7 @@ class ClassTranslator(Translator):
         self._files_paths.append(color_filepath)
         logging.info(f"Color File generated on {color_filepath}")
 
-    output_path = rootpath.detect() if output_path == "." else output_path
+    output_path = rootpath.detect() if output_path == "." else os.path.expanduser("~\\Desktop\\Tokens")
     FileManager.move_files(self.temp_path, output_path)
 
   def _translate_colors(self, json_content_colors: dict[str, Any], file_path: str) -> str:

@@ -29,7 +29,7 @@ With design tokens in json, run:
 > figma-token file -fp PATH_TO_DESIGN_TOKEN.json
 ```
 
-This command generate tokens in python and save on your documents folder.
+This command generate tokens in python and save on your desktop folder.
 
 Options:
   - "-fp": Path to design tokens
