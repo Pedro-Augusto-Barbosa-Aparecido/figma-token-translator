@@ -3,6 +3,9 @@ import sys
 import argparse
 import logging
 
+from utils.validators.arg_validator import ArgValidator
+from translators.class_translator import ClassTranslator
+
 
 class CLI: 
   CURRENT_VERSION_CLI = "Figma Token Translator (FTT) - 0.0.1"
@@ -29,7 +32,18 @@ class CLI:
     parser_args = self.parser.parse_args()
     
     if parser_args:
-      pass
+      logging.info(f"Loading json file from {parser_args.filepath}")
+
+      if not ArgValidator.has_argument(parser_args, "filename"):
+        logging.warning("Filenames translated will be assumed name each token")
+
+        class_translator = ClassTranslator(parser_args.filepath)
+      else:
+        logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
+        class_translator = ClassTranslator(parser_args.filepath, parser_args.filename)
+
+      logging.info(f"Output file type will be {parser_args.out}")
+      class_translator.translate(output_path=parser_args.destination)
     else:
       self.parser.print_help()
       sys.exit(0)
@@ -45,6 +59,7 @@ class CLI:
     self.translator_by_file.version = self.CURRENT_VERSION_FILE_TRANSLATOR
 
     self.translator_by_file.add_argument("-v", "--version", action="version")
-    self.translator_by_file.add_argument("-fp", "--filepath", type=str, default=".", help="JSON File path [default is Current Dir]", required=False)
-    self.translator_by_file.add_argument("-f", "--file", type=str, help="filename", required=True)
+    self.translator_by_file.add_argument("-fp", "--filepath", type=str, help="JSON File path [default is Current Dir]", required=True)
+    self.translator_by_file.add_argument("-d", "--destination", type=str, default=".", help="Output path for translated files", required=False)
+    self.translator_by_file.add_argument("-f", "--filename", type=str, help="(Optional) Filename of each token generated ex: 'YOUR_NAME-TOKEN_NAME.py' . Default is token name", required=False)
     self.translator_by_file.add_argument("-o", "--out", type=str, help="(Optional) Type of translator output, supports [class, namedtuple, dict, constants] | default = 'class'", default="class", required=False)
