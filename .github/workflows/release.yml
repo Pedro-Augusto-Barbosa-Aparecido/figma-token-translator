@@ -1,0 +1,82 @@
+name: Create Release
+
+on:
+  push:
+    tags: ["*"]
+
+jobs: 
+  build:
+    name: Release CLI
+    runs-on ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: apt-update
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        run: sudo apt-get update
+
+      - name: autoremove
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        run: sudo apt autoremove
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.4.0
+        with:
+          python-version: '3.11.2'
+
+      - name: Install dependencies for ${{ matrix.os }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Building CLI for ${{ matrix.os }}
+        run: pyinstaller main.spec
+
+      - name: Rename builded app
+        run: mv ./dist ./dist-${{ matrix.os }}
+
+      - name: Upload result job ${{ matrix.config.os }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: cli-pyinstaller-artifact
+          path: ./dist*
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: cli-pyinstaller-artifact
+
+      - name: Zip file windows
+        run: zip -r cli_windows.zip dist-windows-*
+
+      - name: Zip file ubuntu
+        run: zip -r cli_ubuntu.zip dist-ubuntu-*
+
+      - name: Zip file macos
+        run: zip -r cli_macos.zip dist-macos-*
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+          files: |
+            cli_windows.zip
+            cli_ubuntu.zip
+            cli_macos.zip
