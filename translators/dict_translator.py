@@ -57,12 +57,11 @@ class DictTranslator(Translator):
         file.write("""
 from collections import namedtuple
 
-colors = {
-""")
+colors = {""")
 
-        for color_name in colors_names:
+        for index, color_name in enumerate(colors_names):
           file.write(f"""
-  \"{color_name}\" = \"{colors_values[color_name]}\"""")
+  \"{color_name}\": \"{colors_values[color_name]}\"{',' if index < (len(colors_names) - 1) else ''}""")
         file.write("\n}\n")
         file_path_absoluty = os.path.abspath(file.name)
       except Exception as e:
