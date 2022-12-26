@@ -1,6 +1,6 @@
-import os
 import json
 import logging
+import os
 
 
 class Translator:
@@ -34,7 +34,7 @@ class Translator:
     return self._json_path
 
   @property 
-  def json(self):
+  def json(self) -> dict:
     json_content = None
     
     try: 

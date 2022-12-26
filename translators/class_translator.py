@@ -1,14 +1,12 @@
+import datetime
+import logging
 import os
 import sys
-import logging
-import datetime
-
-import rootpath
+from typing import Any
 
 from translators.translator import Translator
-from utils.validators.validator import PathValidator
 from utils.manager import FileManager
-from typing import Any
+from utils.validators.validator import PathValidator
 
 
 class ClassTranslator(Translator): 
@@ -36,7 +34,7 @@ class ClassTranslator(Translator):
         self._files_paths.append(color_filepath)
         logging.info(f"Color File generated on {color_filepath}")
 
-    output_path = rootpath.detect() if output_path == "." else os.path.expanduser("~\\Desktop\\Tokens")
+    output_path = os.path.expanduser("~\\Desktop\\Tokens") if output_path is None else output_path
     FileManager.move_files(self.temp_path, output_path)
 
   def _translate_colors(self, json_content_colors: dict[str, Any], file_path: str) -> str:
