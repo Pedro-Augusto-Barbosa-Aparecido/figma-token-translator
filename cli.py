@@ -3,6 +3,7 @@ import logging
 import sys
 
 from translators.class_translator import ClassTranslator
+from translators.constants_translators import ConstantsTranslator
 from translators.dict_translator import DictTranslator
 from translators.namedtuple_translator import NamedtupleTranslator
 from utils.validators.arg_validator import ArgValidator
@@ -61,6 +62,17 @@ class CLI:
           else:
             logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
             translator = DictTranslator(filepath, parser_args.filename)
+        case "constants":
+          if not ArgValidator.has_argument(parser_args, "filename"):
+            logging.warning("Filenames translated will be assumed name each token")
+
+            translator = ConstantsTranslator(filepath)
+          else:
+            logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
+            translator = ConstantsTranslator(filepath, parser_args.filename)
+        case _:
+          logging.warning("Invalid type output!")
+          sys.exit(0)
 
       logging.info(f"Output file type will be {parser_args.out}")
       translator.translate(output_path=parser_args.destination)
