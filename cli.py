@@ -1,10 +1,11 @@
-import sys
-
 import argparse
 import logging
+import sys
 
-from utils.validators.arg_validator import ArgValidator
 from translators.class_translator import ClassTranslator
+from translators.dict_translator import DictTranslator
+from translators.namedtuple_translator import NamedtupleTranslator
+from utils.validators.arg_validator import ArgValidator
 
 
 class CLI: 
@@ -33,17 +34,36 @@ class CLI:
     
     if parser_args:
       logging.info(f"Loading json file from {parser_args.filepath}")
+      filepath = parser_args.filepath if parser_args.filepath != '.' else None
 
-      if not ArgValidator.has_argument(parser_args, "filename"):
-        logging.warning("Filenames translated will be assumed name each token")
+      match parser_args.out:
+        case "class": 
+          if not ArgValidator.has_argument(parser_args, "filename"):
+            logging.warning("Filenames translated will be assumed name each token")
 
-        class_translator = ClassTranslator(parser_args.filepath)
-      else:
-        logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
-        class_translator = ClassTranslator(parser_args.filepath, parser_args.filename)
+            translator = ClassTranslator(filepath)
+          else:
+            logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
+            translator = ClassTranslator(filepath, parser_args.filename)
+        case "namedtuple":
+          if not ArgValidator.has_argument(parser_args, "filename"):
+            logging.warning("Filenames translated will be assumed name each token")
+
+            translator = NamedtupleTranslator(filepath)
+          else:
+            logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
+            translator = NamedtupleTranslator(filepath, parser_args.filename)
+        case "dict":
+          if not ArgValidator.has_argument(parser_args, "filename"):
+            logging.warning("Filenames translated will be assumed name each token")
+
+            translator = DictTranslator(filepath)
+          else:
+            logging.warning(f"Filenames translated will be assumed {parser_args.filename}-" + "{token_name}.py")
+            translator = DictTranslator(filepath, parser_args.filename)
 
       logging.info(f"Output file type will be {parser_args.out}")
-      class_translator.translate(output_path=parser_args.destination)
+      translator.translate(output_path=parser_args.destination)
     else:
       self.parser.print_help()
       sys.exit(0)
